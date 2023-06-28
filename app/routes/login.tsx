@@ -4,7 +4,7 @@ import { Link, useActionData, useSearchParams } from "@remix-run/react";
 import stylesUrl from "~/styles/login.css";
 import { db } from "~/utils/db.server";
 import { badRequest } from "~/utils/request.server";
-import { login, createUserSession } from "~/utils/session.server";
+import { login, register, createUserSession } from "~/utils/session.server";
 
 export const links: LinksFunction = () => [
   { rel: "stylesheet", href: stylesUrl },
@@ -88,6 +88,15 @@ export const action = async ({ request }: ActionArgs) => {
           fieldErrors: null,
           fields,
           formError: `User with username ${username} already exists`,
+        });
+      }
+
+      const user = await register({ username, password });
+      if (!user) {
+        return badRequest({
+          fieldErrors: null,
+          fields,
+          formError: "Something went wrong trying to create a new user.",
         });
       }
       // create the user
