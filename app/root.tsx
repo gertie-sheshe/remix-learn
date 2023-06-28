@@ -1,4 +1,6 @@
-import { Outlet, Links } from "@remix-run/react";
+import { Outlet, Links, useRouteError } from "@remix-run/react";
+import type { PropsWithChildren } from "react";
+
 import type { LinksFunction } from "@remix-run/node";
 
 import globalLargeStylesUrl from "./styles/global-large.css";
@@ -19,19 +21,44 @@ export const links: LinksFunction = () => [
   },
 ];
 
-export default function App() {
+function Document({
+  children,
+  title = "Remix: So great, it's funny!",
+}: PropsWithChildren<{ title?: string }>) {
   return (
     <html lang="en">
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width,initial-scale=1" />
-        <title>Remix: So great, it's funny!</title>
+        <title>{title}</title>
         <Links />
       </head>
       <body>
-        <Outlet />
-        {/* <LiveReload port={8002} /> */}
+        {children}
+        {/* <LiveReload /> */}
       </body>
     </html>
+  );
+}
+
+export default function App() {
+  return (
+    <Document>
+      <Outlet />
+    </Document>
+  );
+}
+
+export function ErrorBoundary() {
+  const error = useRouteError();
+
+  const errorMessage = error instanceof Error ? error.message : "Unknown error";
+  return (
+    <Document title="Uh-oh!">
+      <div className="error-container">
+        <h1>App Error</h1>
+        <pre>{errorMessage}</pre>
+      </div>
+    </Document>
   );
 }
